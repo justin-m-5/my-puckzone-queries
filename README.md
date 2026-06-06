@@ -72,35 +72,16 @@ sql/
     teams/
       get_team_by_id.sql
       list_teams.sql
-  views/
-    game_box_score.sql
-    player_season_totals.sql
-    skater_leaderboard.sql
-    team_season_summary.sql
-  functions/
-    get_game_overview.sql
 ```
 
 ## How this repo maps to Supabase
 
-- `sql/queries/**` are runtime SQL strings the app sends to the database (with `$1`, `$2`, ... params). These are loaded/read by the app at request time and do not need to be installed in advance.
-- `sql/views/**` and `sql/functions/**` are database DDL objects. These must be applied to your Supabase database once before the app can reference them.
-- This repository is the source of truth; your live Supabase database does not auto-sync from these files.
+- This repo (`my-puckzone-queries`) contains runtime query files in `sql/queries/**` and the schema context snapshot in `sql/schema/000_context_schema.sql`.
+- `sql/queries/**` are SQL strings the app sends at request time (with `$1`, `$2`, ... params). They are not database objects and do not need to be installed.
+- Database DDL objects (reusable views + functions/RPCs) now live in the companion repo <a href="https://github.com/justin-m-5/my-puckzone-db-migration">`justin-m-5/my-puckzone-db-migration`</a>, which is the source of truth for objects applied to Supabase (for example: `v_game_box_score`, `v_player_season_totals`, `v_team_season_summary`, `v_skater_leaderboard`, and `get_game_overview`).
+- The app still references those database objects by name at runtime, and query files in this repo may filter views defined in the migration repo.
 
-Three ways to apply DDL files (pick one):
-
-1. Supabase Studio → SQL Editor → paste a file's SQL → **Run**.
-2. CLI: `supabase db query --file sql/views/game_box_score.sql`
-3. Migrations (recommended long-term): copy DDL into `supabase/migrations/<timestamp>_<name>.sql` and run `supabase db push`.
-
-Apply order notes:
-
-- Apply `player_season_totals` before `skater_leaderboard`.
-- Apply all views before `get_game_overview`.
-
-Views in this repo use `WITH (security_invoker = true)` (Postgres 15+, Supabase default), so existing RLS policies still apply through the view.
-
-Guidance: don't copy the same multi-table join into many query files. Add it once as a reusable view, then keep runtime query files focused on filtering. Example: `public.v_game_box_score` replaces repeating the home/away `teams` join pattern used in `list_games_by_date.sql`.
+Guidance: don't copy the same multi-table join into many query files. Add it once as a reusable view in `my-puckzone-db-migration`, then keep runtime query files focused on filtering.
 
 ## Getting started
 
