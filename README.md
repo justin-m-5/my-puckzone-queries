@@ -78,7 +78,7 @@ sql/
 
 - This repo (`my-puckzone-queries`) contains runtime query files in `sql/queries/**` and the schema context snapshot in `sql/schema/000_context_schema.sql`.
 - `sql/queries/**` are SQL strings the app sends at request time (with `$1`, `$2`, ... params). They are not database objects and do not need to be installed.
-- Database DDL objects (reusable views + functions/RPCs) now live in the companion repo <a href="https://github.com/justin-m-5/my-puckzone-db-migration">`justin-m-5/my-puckzone-db-migration`</a>, which is the source of truth for objects applied to Supabase (for example: `v_game_box_score`, `v_player_season_totals`, `v_team_season_summary`, `v_skater_leaderboard`, and `get_game_overview`).
+- Database DDL objects (reusable views + functions/RPCs) now live in the companion repo [`justin-m-5/my-puckzone-db-migration`](https://github.com/justin-m-5/my-puckzone-db-migration), which is the source of truth for objects applied to Supabase (for example: `v_game_box_score`, `v_player_season_totals`, `v_team_season_summary`, `v_skater_leaderboard`, and `get_game_overview`).
 - The app still references those database objects by name at runtime, and query files in this repo may filter views defined in the migration repo.
 
 Guidance: don't copy the same multi-table join into many query files. Add it once as a reusable view in `my-puckzone-db-migration`, then keep runtime query files focused on filtering.
